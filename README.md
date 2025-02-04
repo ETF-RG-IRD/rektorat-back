@@ -1,4 +1,4 @@
-# Project Name
+# Rektorat backend
 
 ## Installation
 
