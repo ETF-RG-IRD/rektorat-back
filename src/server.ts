@@ -6,6 +6,8 @@ import LoginRouter from './routers/login.router'
 import dotenv from 'dotenv'
 import bcrypt from 'bcrypt'
 import EnrolledRouter from './routers/enrolled.router'
+import RegisterRouter from './routers/register.router'
+import AdminRouter from './routers/admin.router'
 
 dotenv.config()
 
@@ -51,4 +53,7 @@ connection.once('open', async () => {
 app.use('/', router);
 app.use('/login', LoginRouter);
 app.use('/enroll', EnrolledRouter);
+app.use('/register', RegisterRouter);
+app.use('/admin', AdminRouter);
+
 app.listen(4000, () => console.log('Express running on port 4000'))

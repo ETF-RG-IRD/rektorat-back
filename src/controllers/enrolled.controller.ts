@@ -3,6 +3,17 @@ import RegisteredStudentModel from '../models/enrolled.model';
 import StudentStreaksModel from '../models/streaks.model';
 import { toZonedTime, format } from 'date-fns-tz';
 export class EnrollController {
+    /**
+     * 
+     * @param req This is just the HTML request header that has a body that contains the parameters sent over from the front-end\
+     * as basically a JSON object.
+     * @param res This a HTML response that gets sent back to the user. 
+     * 
+     * @description
+     * This takes the todays date as a `Date` object and converts it to the local time.\
+     * First we check for the student in the database and if it's his/hers first time being registered we create an entry.
+     * Otherwise we just return the last date they were registered (that's the point of `{date: -1}` on line 36). And we'll use that to return to the user.
+     */
     enroll = async (req: express.Request, res: express.Response) => {
         const { uid, org, today } = req.body;
 
