@@ -15,7 +15,11 @@ const RequestSchema = new Schema({
     org: {
         type: String,
         required: true
+    },
+    UUID: {
+        type: String,
     }
+        
 });
 
 const RequestModel = mongoose.model('RequestModel', RequestSchema, 'requests');

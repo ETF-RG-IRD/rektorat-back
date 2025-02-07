@@ -2,6 +2,7 @@ import express from 'express'
 import RegisteredStudentModel from '../models/enrolled.model';
 import StudentStreaksModel from '../models/streaks.model';
 import { toZonedTime, format } from 'date-fns-tz';
+import VerifiedStudentModel from '../models/verified.model';
 export class EnrollController {
     /**
      * 
@@ -38,6 +39,11 @@ export class EnrollController {
 
             if (registered_student == null) {
                 console.log(`* INFO: Student's first time being registered ➡ uID: ${uid} ; org: ${org} @ ${zoned_today}`);
+
+                await VerifiedStudentModel.create({
+                    uid: uid,
+                    org: org
+                });
 
                 await RegisteredStudentModel.create({
                     uid: uid,
@@ -135,6 +141,36 @@ export class EnrollController {
         } catch (error) {
             console.error("Error enrolling student:", error);
             res.status(500).json({ message: "Internal server error" });
+        }
+    }
+
+
+    /**
+     * 
+     * @param req HTML request
+     * @param res HTML response
+     * @description
+     * 
+     * */
+    check = async (req: express.Request, res: express.Response) => {
+        const { uid, org } = req.body;
+
+        try {
+            const verified = await VerifiedStudentModel.exists({
+                uid: uid,
+                org: org
+            }).exec();
+
+            if(verified) {
+                res.status(200).json({message: `Pronađen student ${uid} sa fakulteta ${org}`, found: true});
+            }
+            else {
+                res.status(200).json({message: `Nije verifikovan student ${uid} sa fakulteta ${org}`, found: false});
+            }
+        }
+        catch(error) {
+            console.log(error);
+            res.status(500).json({message: 'Internal server error'})
         }
     }
 }
