@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt'
 import UserModel from '../models/user.model';
 import RequestModel from '../models/request.model';
 import { CONSOLE_INFO } from '../util/console.util';
+import {v4 as uuidv4} from 'uuid';
 
 
 
@@ -40,7 +41,8 @@ export class RegisterController {
                 await RequestModel.create({
                     username: username,
                     password: hashed_password,
-                    org: org
+                    org: org,
+                    UUID: uuidv4()
                 });
                 CONSOLE_INFO(`New request for user account for approval by ${hashed_user}`);
                 res.status(200).json({ pass: true })
