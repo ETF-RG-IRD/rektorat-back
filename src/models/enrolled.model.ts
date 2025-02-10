@@ -18,7 +18,13 @@ const RegisteredStudentSchema = new Schema({
         type: String,
         required: true,
     },
+    // Work group
     group: {
+        type: String,
+        default: ''
+    },
+    // Time of exit
+    exit: {
         type: String,
         default: ''
     }

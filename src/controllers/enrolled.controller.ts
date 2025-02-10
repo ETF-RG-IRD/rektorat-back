@@ -3,6 +3,10 @@ import RegisteredStudentModel from '../models/enrolled.model';
 import StudentStreaksModel from '../models/streaks.model';
 import { toZonedTime, format } from 'date-fns-tz';
 import VerifiedStudentModel from '../models/verified.model';
+import { v4 as uuidv4 } from 'uuid';
+import { CONSOLE_FAIL, CONSOLE_INFO, CONSOLE_SUCCESS, CONSOLE_WARN } from '../util/console.util';
+import ExitLogModel from '../models/log_exit.model';
+
 export class EnrollController {
     /**
      * 
@@ -38,7 +42,7 @@ export class EnrollController {
 
 
             if (registered_student == null) {
-                console.log(`* INFO: Student's first time being registered ➡ uID: ${uid} ; org: ${org} @ ${zoned_today}`);
+                CONSOLE_INFO(`Enroll: Student ${uid} from ${org} first time being registered`)
 
                 await VerifiedStudentModel.create({
                     uid: uid,
@@ -48,7 +52,8 @@ export class EnrollController {
                 await RegisteredStudentModel.create({
                     uid: uid,
                     org: org,
-                    date: zoned_today
+                    date: zoned_today,
+                    exit: uuidv4()
                 });
 
                 await StudentStreaksModel.create({
@@ -66,7 +71,7 @@ export class EnrollController {
             }
             else {
                 // Student has been registered before
-                console.log(`* INFO: Found student ➡ uID: ${uid} ; org: ${org}`);
+                CONSOLE_SUCCESS(`Enroll: Found ${uid} from ${org}`)
 
                 const yesterday = new Date();
                 yesterday.setDate(yesterday.getDate() - 1);
@@ -101,7 +106,7 @@ export class EnrollController {
                         ],
                         { new: true } // Return the updated document
                     );
-                    console.log(`* INFO: Incremented student streak by 1`);
+                    CONSOLE_INFO(`Enroll: Incremented student ${uid} from ${org} streak by 1.`)
                 } else {
                     await StudentStreaksModel.findOneAndUpdate(
                         {
@@ -117,7 +122,7 @@ export class EnrollController {
                         ],
                         { new: true } // Return the updated document
                     );
-                    console.log(`* INFO: Reset student streak to 1`);
+                    CONSOLE_INFO(`Enroll: Reset student ${uid} from ${org} streak to 1.`)
                 }
 
 
@@ -126,7 +131,8 @@ export class EnrollController {
                 await RegisteredStudentModel.create({
                     uid: uid,
                     org: org,
-                    date: zoned_today
+                    date: zoned_today,
+                    exit: uuidv4()
                 });
 
                 // Return response with last registration date and student details
@@ -137,7 +143,7 @@ export class EnrollController {
                     last_seen: format(registered_student.date!, 'dd-MM-yyyy HH:mm', { timeZone: time_zone })
                 });
             }
-            console.log(`\t✅ SUCCESS: Registered student for today!`);
+            CONSOLE_SUCCESS(`Enroll: Student ${uid} from ${org} logged for today!`)
         } catch (error) {
             console.error("Error enrolling student:", error);
             res.status(500).json({ message: "Internal server error" });
@@ -161,16 +167,51 @@ export class EnrollController {
                 org: org
             }).exec();
 
-            if(verified) {
-                res.status(200).json({message: `Pronađen student ${uid} sa fakulteta ${org}`, found: true});
+            if (verified) {
+                CONSOLE_SUCCESS(`Stduent ${uid} from ${org} verified`)
+                res.status(200).json({ message: `Pronađen student ${uid} sa fakulteta ${org}`, found: true });
             }
             else {
-                res.status(200).json({message: `Nije verifikovan student ${uid} sa fakulteta ${org}`, found: false});
+                CONSOLE_WARN(`Student ${uid} from ${org} not verified`)
+                res.status(200).json({ message: `Nije verifikovan student ${uid} sa fakulteta ${org}`, found: false });
             }
         }
-        catch(error) {
+        catch (error) {
             console.log(error);
-            res.status(500).json({message: 'Internal server error'})
+            res.status(500).json({ message: 'Internal server error' })
         }
+    }
+
+    log_exit = async (req: express.Request, res: express.Response) => {
+        const { uid, org } = req.body;
+
+        try {
+            CONSOLE_INFO(`Logging exit of student ${uid} from ${org}.`)
+
+            // Check if the student is already registered
+            const registered_student = await RegisteredStudentModel.findOne({
+                uid: uid,
+                org: org
+            }).sort({ date: -1 }); // Get the most recent registration
+
+            if(registered_student == null) {
+                CONSOLE_FAIL(`Student ${uid} from ${org} hasn't been logged at enterance!`)
+                res.status(404).json({message: 'Student not found in entrance log', pass: false});
+            }
+            else {
+                await ExitLogModel.create({
+                    date_entry: registered_student.date,
+                    date_exit: new Date(),
+                    UUID: registered_student.exit
+                })
+                CONSOLE_SUCCESS(`Entry with uuid ${registered_student.exit} exited`);
+                res.status(200).json({message: 'Logged exit', pass: true});
+            }
+        }
+        catch (error) {
+            console.log(error)
+            res.status(500).json({ message: 'Internal server error' })
+        }
+
     }
 }
