@@ -8,5 +8,8 @@ EnrolledRouter.route('/add').post(
 EnrolledRouter.route('/check').post(
     (req, res) => new EnrollController().check(req, res)
 );
+EnrolledRouter.route('/logout').post(
+    (req, res) => new EnrollController().log_exit(req, res)
+);
 
 export default EnrolledRouter;

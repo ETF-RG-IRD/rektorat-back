@@ -44,10 +44,10 @@ export class RegisterController {
                     org: org,
                     UUID: uuidv4()
                 });
-                CONSOLE_INFO(`New request for user account for approval by ${hashed_user}`);
+                CONSOLE_INFO(`Register : New request for user account for approval by ${hashed_user}`);
                 res.status(200).json({ pass: true })
             } else {
-                CONSOLE_INFO(`User tried registering already existing account with username ${hashed_user} or request already exists`);
+                CONSOLE_INFO(`Register: User tried registering already existing account with username ${hashed_user} or request already exists`);
                 res.status(200).json({ pass: false })
             }
         }
