@@ -25,6 +25,7 @@ Create a `.env` file in the root directory and define the following variables:
 ```
 ADMIN_USERNAME=
 ADMIN_PASSWORD=
+CONNECTION_STRING=
 ```
 
 ## Running the Server
