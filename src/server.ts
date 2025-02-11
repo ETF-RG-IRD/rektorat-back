@@ -20,7 +20,8 @@ app.use(cors())
 app.use(express.json()) // Announcing that we're sending data in JSON
 
 
-mongoose.connect('mongodb://localhost:27017/rektorat_db')
+mongoose.connect(process.env.CONNECTION_STRING as string)
+
 const connection = mongoose.connection;
 const router = express.Router();
 
