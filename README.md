@@ -4,8 +4,8 @@
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/your-username/your-repository.git
-   cd your-repository
+   git clone https://github.com/ETF-RG-IRD/rektorat-back.git
+   cd rektorat-back
    ```
 2. Install dependencies:
    ```sh
